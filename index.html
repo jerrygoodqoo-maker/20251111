@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>朱俊圻 - 作品集</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+
+  <body>
+    <input type="checkbox" id="menu-toggle" hidden>
+    <label for="menu-toggle" class="menu-btn" aria-hidden="true"><span></span></label>
+
+    <nav class="menu-panel" aria-hidden="false" role="navigation">
+      <ul>
+        <li class="has-submenu">
+          <a href="#">第一單元作品</a>
+          <ul class="submenu">
+            <li><a href="#work1">點擊紅色球</a></li>
+            <li><a href="#work2">氣球上飄</a></li>
+          </ul>
+        </li>
+        <li><a href="https://hackmd.io/naqpEibhRuealpdNeoObqA" target="_blank" rel="noopener noreferrer">第一單元講義</a></li>
+        <li><a href="https://jerrygoodqoo-maker.github.io/20251028/" target="_blank" rel="noopener noreferrer">測驗作品</a></li>
+        <li><a href="https://jerrygoodqoo-maker.github.io/2048-FROM-ZJ-/" target="_blank" rel="noopener noreferrer">小遊戲</a></li>
+        <li><a href="#intro">自我介紹</a></li>
+        <li><a href="https://www.tku.edu.tw/" target="_blank" rel="noopener noreferrer">淡江大學</a></li>
+      </ul>
+    </nav>
+
+    <canvas id="bg"></canvas>
+
+    <!-- Work 1 Container -->
+    <div id="work1" class="work-container" style="display: none;">
+      <button class="close-work" onclick="closeWork()">&times;</button>
+      <iframe src="https://jerrygoodqoo-maker.github.io/20251014-SCORE2/" title="第一單元作品"></iframe>
+    </div>
+
+    <!-- Work 2 Container -->
+    <div id="work2" class="work-container" style="display: none;">
+      <button class="close-work" onclick="closeWork()">&times;</button>
+      <iframe src="https://jerrygoodqoo-maker.github.io/20251014/" title="氣球上飄"></iframe>
+    </div>
+
+    <!-- Intro Container -->
+    <div id="intro" class="work-container" style="display: none;">
+      <button class="close-work" onclick="closeWork()">&times;</button>
+      <div class="intro-content">
+        <h2>自我介紹</h2>
+        <p><strong>系所：</strong>教育科技系</p>
+        <p><strong>學號：</strong>414730399</p>
+        <p><strong>姓名：</strong>朱俊圻</p>
+      </div>
+    </div>
+
+    <script src="sketch.js"></script>
+    <script>
+      function closeWork() {
+        document.querySelectorAll('.work-container').forEach(el => el.style.display = 'none');
+        document.getElementById('menu-toggle').checked = false;
+      }
+      // 點擊選單項目時顯示對應作品
+      document.querySelectorAll('a[href^="#work1"], a[href^="#work2"], a[href^="#intro"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const workId = link.getAttribute('href');
+          document.querySelectorAll('.work-container').forEach(el => el.style.display = 'none');
+          document.querySelector(workId).style.display = 'flex';
+          document.getElementById('menu-toggle').checked = false;
+        });
+      });
+    </script>
+  </body>
+</html>

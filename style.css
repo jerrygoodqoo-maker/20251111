@@ -1,0 +1,432 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #0b1020;
+  color: #fff;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  overflow: hidden;
+}
+
+canvas {
+  display: block;
+}
+
+/* ---------------------------
+   Required HTML structure
+   ---------------------------
+   在 <body> 裡放入下列元素（範例）：
+   <input type="checkbox" id="menu-toggle" hidden>
+   <label for="menu-toggle" class="menu-btn" aria-hidden="true"></label>
+   <nav class="menu-panel">
+     <ul>
+       <li><a href="#">首頁</a></li>
+       <li><a href="#">關於</a></li>
+       <li><a href="#">作品</a></li>
+       <li><a href="#">聯絡</a></li>
+     </ul>
+   </nav>
+   <canvas id="bg"></canvas>
+   --------------------------- */
+
+/* Animated soft background blobs (CSS-only fallback/overlay) */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  filter: blur(80px);
+  opacity: 0.7;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body::before {
+  background: radial-gradient(circle at 20% 30%, #4f46e5 0%, transparent 30%),
+              radial-gradient(circle at 80% 70%, #06b6d4 0%, transparent 30%);
+  animation: blobMove1 12s linear infinite;
+}
+
+body::after {
+  background: radial-gradient(circle at 50% 20%, #ff7ab6 0%, transparent 25%),
+              radial-gradient(circle at 10% 80%, #ffd166 0%, transparent 25%);
+  animation: blobMove2 16s linear infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes blobMove1 {
+  0%   { transform: translate(0,0) scale(1); }
+  25%  { transform: translate(6%, -4%) scale(1.05); }
+  50%  { transform: translate(-4%, 6%) scale(0.98); }
+  75%  { transform: translate(3%, -6%) scale(1.02); }
+  100% { transform: translate(0,0) scale(1); }
+}
+@keyframes blobMove2 {
+  0%   { transform: translate(0,0) scale(1); }
+  20%  { transform: translate(-8%, 3%) scale(1.06); }
+  40%  { transform: translate(5%, -5%) scale(0.97); }
+  60%  { transform: translate(-3%, 7%) scale(1.03); }
+  100% { transform: translate(0,0) scale(1); }
+}
+
+/* Canvas is above background but below UI */
+#bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+}
+
+/* ---------------------------
+   Top-left square menu button
+   --------------------------- */
+
+#menu-toggle {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.menu-btn {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 20;
+  width: 52px;
+  height: 52px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 220ms ease, background 220ms ease;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+}
+
+/* Hamburger / X lines */
+.menu-btn::before,
+.menu-btn::after,
+.menu-btn > span {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: linear-gradient(90deg, #fff, rgba(255,255,255,0.85));
+  border-radius: 2px;
+  transition: transform 220ms ease, opacity 220ms ease;
+  position: relative;
+}
+
+.menu-btn::before { transform: translateY(-7px); }
+.menu-btn::after  { transform: translateY(7px); }
+.menu-btn > span { opacity: 1; }
+
+/* When menu open -> transform into X */
+#menu-toggle:checked + .menu-btn {
+  transform: rotate(90deg) scale(0.98);
+  background: rgba(255,255,255,0.08);
+}
+#menu-toggle:checked + .menu-btn::before {
+  transform: rotate(45deg);
+  translate: 0 0;
+}
+#menu-toggle:checked + .menu-btn::after {
+  transform: rotate(-45deg);
+  translate: 0 0;
+}
+#menu-toggle:checked + .menu-btn > span { opacity: 0; }
+
+/* ---------------------------
+   Slide-in menu panel
+   --------------------------- */
+
+.menu-panel {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 18;
+  width: 260px;
+  max-width: calc(100% - 48px);
+  height: calc(100% - 24px);
+  transform: translateX(-110%);
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  opacity: 0;
+  background: linear-gradient(180deg, rgba(10,12,20,0.9), rgba(8,10,16,0.86));
+  border-radius: 12px;
+  padding: 72px 18px 18px 18px;
+  box-shadow: 0 18px 60px rgba(2,6,23,0.6);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  overflow-y: auto;
+}
+
+/* Show when toggled */
+#menu-toggle:checked ~ .menu-panel {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Menu list */
+.menu-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.menu-panel a {
+  color: #e6eefc;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  transition: background 180ms ease, transform 120ms ease;
+}
+.menu-panel a:hover {
+  background: rgba(255,255,255,0.04);
+  transform: translateX(6px);
+}
+
+/* Submenu styles */
+.has-submenu > a {
+  position: relative;
+  padding-right: 30px; /* Space for arrow */
+}
+
+.has-submenu > a::after {
+  content: '▼';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) scale(0.6);
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  transition: transform 0.2s ease;
+}
+
+.has-submenu:hover > a::after {
+  transform: translateY(-50%) scale(0.6) rotate(180deg);
+}
+
+.submenu {
+  list-style: none;
+  padding: 5px 0 5px 20px; /* Indent submenu */
+  margin: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.has-submenu:hover .submenu {
+  max-height: 200px; /* Adjust as needed */
+}
+
+/* ---------------------------
+   Work containers (iframe)
+   --------------------------- */
+
+.work-container {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(6,10,20,0.95);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.work-container iframe {
+  width: 100%;
+  height: 100%;
+  max-width: 1400px;
+  max-height: 900px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: #0b1020;
+}
+
+.close-work {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 101;
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #e6eefc;
+  font-size: 28px;
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms ease;
+  backdrop-filter: blur(6px);
+}
+
+.close-work:hover {
+  background: rgba(255,255,255,0.14);
+  transform: scale(1.05);
+}
+
+/* Menu tip badge */
+.tip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.tip-badge::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #ff3b4a;
+  border-radius: 50%;
+  animation: pulse-badge 1.8s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255, 59, 74, 0.6);
+  flex-shrink: 0;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+/* small screens adjustments */
+@media (max-width: 480px) {
+  .menu-panel { width: 86%; padding-top: 80px; left: 8px; top: 8px; }
+  .menu-btn { width: 48px; height: 48px; left: 12px; top: 12px; }
+  .intro-content { padding: 30px 24px; }
+  .intro-content h2 { font-size: 22px; }
+  .intro-content p { font-size: 14px; }
+}
+
+/* Accessibility focus */
+.menu-btn:focus {
+  outline: 2px solid rgba(255,255,255,0.14);
+  outline-offset: 3px;
+}
+.menu-panel a:focus {
+  outline: 2px solid rgba(255,255,255,0.12);
+  outline-offset: 3px;
+}
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .menu-panel, .menu-btn, #menu-toggle:checked + .menu-btn::before, #menu-toggle:checked + .menu-btn::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.intro-content {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 40px 50px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  max-width: 500px;
+  width: 90%;
+  animation: slideUp 0.6s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.intro-content h2 {
+  font-size: 28px;
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: rgba(240,248,255,0.95);
+  animation: fadeInScale 0.8s ease-out 0.2s both;
+}
+
+.intro-content p {
+  font-size: 16px;
+  margin: 16px 0;
+  color: rgba(220,230,245,0.9);
+  line-height: 1.6;
+  animation: fadeInSlide 0.6s ease-out both;
+  transition: transform 200ms ease, color 200ms ease;
+}
+
+.intro-content p:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.intro-content p:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.intro-content p:nth-child(4) {
+  animation-delay: 0.8s;
+}
+
+.intro-content p:hover {
+  transform: translateX(8px);
+  color: rgba(255,255,255,1);
+  text-shadow: 0 0 12px rgba(79,70,229,0.4);
+}
+
+.intro-content strong {
+  color: rgba(240,248,255,0.95);
+  font-weight: 600;
+  background: linear-gradient(120deg, #4f46e5, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
